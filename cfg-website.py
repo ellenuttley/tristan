@@ -1,7 +1,8 @@
 class Webpage:
-    def __init__(self, suffix, options):
+    def __init__(self, suffix, options, back):
         self.suffix = suffix
         self.options = options
+        self.back = back
 
     def page_link(self):
         return f"https://codefirstgirls.com{self.suffix}"
@@ -11,84 +12,36 @@ class Webpage:
         return input(f"Where are you clicking?\nOptions: {self.options}\n").title().strip()
 
 
-class Homepage(Webpage):
-    def __init__(self):
-        suffix = "/"
-        options = "Courses, Opportunities"
-        super().__init__(suffix, options)
+homepage = Webpage("/", "Courses, Opportunities", "homepage")
+courses = Webpage("/courses", "CFG Degree, Back", "homepage")
+cfg_degree = Webpage("/cfgdegree/", "Back", "courses")
+opportunities = Webpage("/opportunities", "Ambassador, Back", "homepage")
+ambassador = Webpage("/ambassador/", "Back", "opportunities")
 
 
-class CoursesPage(Webpage):
-    def __init__(self):
-        suffix = "/courses"
-        options = "CFG Degree, Back"
-        super().__init__(suffix, options)
-
-    def back(self):
-        Homepage().output_message()
+from collections import deque
 
 
-class CfgDegreePage(CoursesPage):
-    def __init__(self):
-        suffix = "/cfgdegree/"
-        super().__init__()
-        self.suffix += suffix
-
-    def page_options(self):
-        return "Back"
-
-    def back(self):
-        CoursesPage().output_message()
-
-
-class OpportunitiesPage(Webpage):
-    def __init__(self):
-        suffix = "/opportunities"
-        options = "Ambassador, Back"
-        super().__init__(suffix, options)
-
-    def back(self):
-        Homepage().output_message()
-
-class AmbassadorPage(OpportunitiesPage):
-    def __init__(self):
-        name = "Ambassador"
-        suffix = "/ambassador"
-        super().__init__()
-        self.suffix += suffix
-
-    def page_options(self):
-        return "Back"
-
-    def back(self):
-        OpportunitiesPage().output_message()
-
-
-homepage = Homepage()
-courses = CoursesPage()
-cfg_degree = CfgDegreePage()
-opportunities = OpportunitiesPage()
-ambassador = AmbassadorPage()
-
-
-# @Navigator
-def cfg_website(current_page):
+def cfg_website(current_page, website_stack=deque()):
     user_input = current_page.output_message()
     while True:
+        website_stack.append(current_page)
+        print(website_stack)
         if user_input == "Homepage":
-            current_page = Homepage()
+            current_page = homepage
         if user_input == "Courses":
-            current_page = CoursesPage()
+            current_page = courses
         if user_input == "Cfg Degree":
-            current_page = CfgDegreePage()
+            current_page = cfg_degree
         if user_input == "Opportunities":
-            current_page = OpportunitiesPage()
+            current_page = opportunities
         if user_input == "Ambassador":
-            current_page = AmbassadorPage()
+            current_page = ambassador
         if user_input == "Back":
-            current_page.back()
+            website_stack.pop()
+            current_page = website_stack[-1]
         cfg_website(current_page)
         return
 
 
-cfg_website(Homepage())
+cfg_website(homepage)
