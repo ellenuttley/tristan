@@ -1,6 +1,5 @@
 class Webpage:
-    def __init__(self, name, suffix, options):
-        self.name = name
+    def __init__(self, suffix, options):
         self.suffix = suffix
         self.options = options
 
@@ -14,18 +13,16 @@ class Webpage:
 
 class Homepage(Webpage):
     def __init__(self):
-        name = 'Homepage'
         suffix = "/"
         options = "Courses, Opportunities"
-        super().__init__(name, suffix, options)
+        super().__init__(suffix, options)
 
 
 class CoursesPage(Webpage):
     def __init__(self):
-        name = "Courses"
         suffix = "/courses"
         options = "CFG Degree, Back"
-        super().__init__(name, suffix, options)
+        super().__init__(suffix, options)
 
     def back(self):
         Homepage().output_message()
@@ -33,9 +30,7 @@ class CoursesPage(Webpage):
 
 class CfgDegreePage(CoursesPage):
     def __init__(self):
-        name = "CFG Degree"
         suffix = "/cfgdegree/"
-        options = "Back"
         super().__init__()
         self.suffix += suffix
 
@@ -48,10 +43,9 @@ class CfgDegreePage(CoursesPage):
 
 class OpportunitiesPage(Webpage):
     def __init__(self):
-        name = "Opportunities"
         suffix = "/opportunities"
         options = "Ambassador, Back"
-        super().__init__(name, suffix, options)
+        super().__init__(suffix, options)
 
     def back(self):
         Homepage().output_message()
@@ -68,8 +62,16 @@ class AmbassadorPage(OpportunitiesPage):
 
     def back(self):
         OpportunitiesPage().output_message()
-        
 
+
+homepage = Homepage()
+courses = CoursesPage()
+cfg_degree = CfgDegreePage()
+opportunities = OpportunitiesPage()
+ambassador = AmbassadorPage()
+
+
+# @Navigator
 def cfg_website(current_page):
     user_input = current_page.output_message()
     while True:
