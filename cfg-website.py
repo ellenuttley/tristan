@@ -1,47 +1,50 @@
 class Webpage:
-    def __init__(self, suffix, options, back):
-        self.suffix = suffix
-        self.options = options
-        self.back = back
+    def __init__(self, name, slug, parent_page=None):
+        self.name = name
+        self.slug = slug
+        self.child_pages = []
+        self.parent_page = parent_page
+        if parent_page:
+            parent_page.add_child_page(self)
+    
+    def add_child_page(self, child_page):
+        self.child_pages.append(child_page)
 
     def page_link(self):
-        return f"https://codefirstgirls.com{self.suffix}"
+        return f"https://codefirstgirls.com{self.slug}"
+    
+    def options(self):
+        child_names = [child_page.name for child_page in self.child_pages]
+        if self.parent_page:
+            return ", ".join(child_names + ["Back"])
+        return ", ".join(child_names)
 
     def output_message(self):
-        print(f"You are currently on the URL: {self.page_link()}")
-        return input(f"Where are you clicking?\nOptions: {self.options}\n").title().strip()
+        print(f"You are on the {self.name} page at URL: {self.page_link()}")
 
+    def navigate(self):
+        option = input(f"Where are you clicking?\nOptions: {self.options()}\n").lower().strip()
+        if option in ["q", "quit", "e", "exit"]:
+            return False
+        if option == "back" and self.parent_page:
+            return self.parent_page
+        for child_page in self.child_pages:
+            if option == child_page.name.lower():
+                return child_page
+        print(f"\nInvalid option {option}\n")
+        return self
 
-homepage = Webpage("/", "Courses, Opportunities", "homepage")
-courses = Webpage("/courses", "CFG Degree, Back", "homepage")
-cfg_degree = Webpage("/cfgdegree/", "Back", "courses")
-opportunities = Webpage("/opportunities", "Ambassador, Back", "homepage")
-ambassador = Webpage("/ambassador/", "Back", "opportunities")
+homepage = Webpage("Homepage", "/")
+courses = Webpage("View Courses", "/courses", homepage)
+cfg_degree = Webpage("CFG Degree", "/cfgdegree", courses)
+opportunities = Webpage("Opportunities", "/opportunities", homepage)
+ambassador = Webpage("Become an Ambassador", "/ambassador", opportunities)
 
-
-from collections import deque
-
-
-def cfg_website(current_page, website_stack=deque()):
-    user_input = current_page.output_message()
-    while True:
-        website_stack.append(current_page)
-        print(website_stack)
-        if user_input == "Homepage":
-            current_page = homepage
-        if user_input == "Courses":
-            current_page = courses
-        if user_input == "Cfg Degree":
-            current_page = cfg_degree
-        if user_input == "Opportunities":
-            current_page = opportunities
-        if user_input == "Ambassador":
-            current_page = ambassador
-        if user_input == "Back":
-            website_stack.pop()
-            current_page = website_stack[-1]
-        cfg_website(current_page)
-        return
-
+# @Navigator
+def cfg_website(current_page):
+    while current_page:
+        current_page.output_message()
+        current_page = current_page.navigate()
+    print("Goodbye!")
 
 cfg_website(homepage)
